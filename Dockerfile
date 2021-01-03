@@ -1,14 +1,10 @@
-FROM continuumio/miniconda3
+FROM python:3.8-buster
 
-SHELL ["/bin/bash", "-c"]
-ADD . /
-RUN chmod +x set_uid.sh
+ENV PYTHONWARNINGS="ignore:Unverified HTTPS request"
+WORKDIR /usr/src/app
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt && pip install fbprophet
 
-ADD environment.yml /tmp/environment.yml
-RUN chmod g+w /etc/passwd
-RUN conda env create -f /tmp/environment.yml
+COPY *.py ./
 
-USER 1001
-
-# Ensure that assigned uid has entry in /etc/passwd.
-CMD ./set_uid.sh && /opt/conda/envs/prophet-env/bin/python ${APP_FILE}
+CMD [ "python", "./app.py" ]
